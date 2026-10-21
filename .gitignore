@@ -1,5 +1,6 @@
 data/raw/*
 !data/raw/.gitkeep
+!data/raw/metrec/
 __pycache__/
 *.pyc
 .venv/
