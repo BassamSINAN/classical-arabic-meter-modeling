@@ -22,7 +22,7 @@ together cover about 93% of attested verses.
 
 | Stage | Content | Folders | Status |
 |---|---|---|---|
-| 1 | Corpus building: download, cleaning, statistics | `scripts/`, `data/` | to do |
+| 1 | Corpus building: download, cleaning, statistics | `data/` | to do |
 | 2 | Rule-based algorithm `f(bayt)` grounded in *ʿarūḍ* rules | `arud/` | to do |
 | 3 | Learning model trained on the errors of `f` | `model/` | to do, depending on data |
 | 4 | Web interface | `web/` | to do |
@@ -33,10 +33,9 @@ together cover about 93% of attested verses.
 classical-arabic-meter-modeling/
 ├── README.md
 ├── data/
-│   ├── raw/        corpora as downloaded (not versioned)
+│   ├── raw/        one folder per corpus: download script, exploration notebook, data
 │   ├── clean/      cleaned corpora, ready to use
 │   └── gold/       hand-annotated verses, reference for evaluating f
-├── scripts/        stage 1: data pipeline
 ├── arud/           stage 2: the f(bayt) algorithm (planned modules)
 │   ├── kitaba.py       kitāba ʿarūḍiyya
 │   ├── taqti.py        segmentation into maqāṭiʿ
