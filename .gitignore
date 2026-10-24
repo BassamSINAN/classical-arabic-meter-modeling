@@ -1,6 +1,8 @@
 data/raw/*
 !data/raw/.gitkeep
 !data/raw/metrec/
+!data/raw/ashaar/
+data/raw/ashaar/*.parquet
 __pycache__/
 *.pyc
 .venv/
