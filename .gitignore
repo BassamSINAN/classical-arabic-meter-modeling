@@ -1,5 +1,6 @@
 data/raw/*
 !data/raw/.gitkeep
+!data/raw/vocalisation.ipynb
 !data/raw/metrec/
 !data/raw/ashaar/
 data/raw/ashaar/*.parquet
