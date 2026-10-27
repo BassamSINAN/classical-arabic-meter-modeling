@@ -1,4 +1,4 @@
-"""Download the Ashaar corpus (arbml/ashaar on Hugging Face) into this folder (data/raw/ashaar/)."""
+"""Download the Ashaar corpus (arbml/ashaar on Hugging Face) into this folder (data/1_raw/ashaar/)."""
 import pathlib
 import urllib.request
 

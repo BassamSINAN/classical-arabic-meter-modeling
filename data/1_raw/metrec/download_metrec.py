@@ -1,4 +1,4 @@
-"""Download the MetRec corpus into this folder (data/raw/metrec/)."""
+"""Download the MetRec corpus into this folder (data/1_raw/metrec/)."""
 import io
 import pathlib
 import urllib.request

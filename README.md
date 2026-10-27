@@ -33,9 +33,9 @@ together cover about 93% of attested verses.
 classical-arabic-meter-modeling/
 ├── README.md
 ├── data/
-│   ├── raw/        one folder per corpus: download script, exploration notebook, data
-│   ├── clean/      cleaned corpora, ready to use
-│   └── gold/       hand-annotated verses, reference for evaluating f
+│   ├── 1_raw/                     corpora as downloaded, one folder per corpus, with exploration notebooks
+│   ├── 2_clean/                   cleaning script and cleaned corpus, ready to use
+│   └── 3_hand_annotated_verses/   verses scanned by hand, reference for evaluating f
 ├── arud/           stage 2: the f(bayt) algorithm (planned modules)
 │   ├── kitaba.py       kitāba ʿarūḍiyya
 │   ├── taqti.py        segmentation into maqāṭiʿ
