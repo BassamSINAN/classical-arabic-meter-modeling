@@ -1,7 +1,7 @@
 """Block 2: split a kitāba into maqāṭiʿ (long "-" / short "ن")."""
 import sys
 sys.path.insert(0, __file__.rsplit("/", 1)[0])
-from kitaba import kitaba, split_letters, FATHA, DAMMA, KASRA, SUKUN, SHADDA, TANWIN
+from kitaba import kitaba, cut_word_into_letters, FATHA, DAMMA, KASRA, SUKUN, SHADDA, TANWIN
 
 VOWELS = (FATHA, DAMMA, KASRA)
 ALIFS = {"ا", "ى"}
@@ -12,7 +12,7 @@ def units(text):
     """Letters of the hemistich as (letter, marks, is_word_start, is_word_end)."""
     out = []
     for word in text.split():
-        items = split_letters(word)
+        items = cut_word_into_letters(word)
         for k, (ch, marks) in enumerate(items):
             out.append((ch, marks, k == 0, k == len(items) - 1))
     return out
