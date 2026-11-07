@@ -59,7 +59,9 @@ corpus (75 + 10 + 15 = 100 %); A and B do not add to C, they divide it.
   of the other *buḥūr*.
 - **Poems already seen.** The 154 poems of the 160 verses used to tune the first
   prototype of `f` (`arud/prototype/evaluate.py`) go first in C, so they are
-  never in B, validation or test (`SEEN_POEMS`).
+  never in B, validation or test. They are the lines of `seen_poems.tsv` whose
+  tier is `proto`, read by `prototype_poems()`; these lines must never be
+  changed, or the split would change.
 
 ## Tracking the tiers
 

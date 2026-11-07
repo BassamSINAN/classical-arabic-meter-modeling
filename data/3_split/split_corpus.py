@@ -7,7 +7,8 @@ README.md of this folder:
 - f is written on growing tiers of C (TIERS); what is left of C when f is
   frozen (B) is kept for the network of f*;
 - the reached tier is kept in development_tier.txt, and the poems seen so far
-  in seen_poems.tsv. Only update_tier writes them.
+  in seen_poems.tsv (which also holds the prototype poems, put first in C).
+  Only update_tier writes them.
 
 Run as a script to write ashaar_split.parquet (not versioned) from
 ../2_clean/ashaar_clean.parquet.
@@ -36,27 +37,6 @@ TIERS = [0.005, 0.01, 0.02, 0.05, 0.10, 0.20, 0.30, 0.40, 0.50, 0.60]
 # the number of poems (70 / 15 / 15), and their part of C is available from the
 # first tier.
 RARE = {"متدارك", "مقتضب", "مضارع"}
-# Poems used to tune the first prototype of f (the 160 verses of
-# arud/prototype/evaluate.py, seeds 0-3, drawn on the corpus before
-# drop_conflicting_labels). They go first in C, so they are never in B,
-# validation or test. Identifiers: rows of the raw corpus (pinned revision).
-SEEN_POEMS = {
-    732, 748, 2376, 2552, 2792, 3115, 3375, 4537, 4921, 4971, 4994, 4996, 5372,
-    7887, 11664, 12996, 13010, 13070, 13716, 13722, 13745, 15083, 15492, 15516,
-    15791, 15868, 16202, 16214, 16326, 17909, 24613, 24862, 24961, 25159, 25315,
-    25435, 26750, 29224, 29254, 29467, 29811, 30012, 32474, 32531, 34934, 34957,
-    35926, 36781, 37746, 37992, 38142, 39969, 42570, 42838, 42885, 45195, 46598,
-    46823, 50185, 50190, 50285, 50450, 50509, 51359, 53881, 54085, 54921, 56301,
-    57252, 58715, 60000, 60642, 60671, 61070, 62383, 62449, 62469, 62711, 63512,
-    63537, 63672, 64390, 64621, 65101, 66540, 68692, 69601, 79723, 79898, 80631,
-    81417, 81698, 81797, 81913, 82831, 83411, 83470, 86012, 86224, 86269, 88469,
-    92294, 92467, 93324, 98821, 99451, 99928, 101028, 101146, 101255, 102194,
-    102228, 103658, 103710, 104254, 104356, 106965, 108967, 109815, 109824, 109881,
-    109944, 111418, 111450, 111584, 111618, 111622, 111777, 111867, 113109, 116777,
-    117705, 119105, 127214, 128660, 128867, 129305, 132073, 132577, 141002, 141118,
-    142417, 142426, 142698, 144332, 144542, 145313, 148536, 148538, 153655, 154078,
-    155368, 155955, 160307
-}
 
 
 # ---------------------------------------------------------------- split
@@ -75,8 +55,8 @@ def add_split(verses):
 
     The split is made by poem (the verses of a poem share poet, rhyme and style)
     and baḥr by baḥr, so that every baḥr has the same proportions in each lot.
-    Within a baḥr, the poems are ordered by poem_rank, the poems of SEEN_POEMS
-    first, then cut on the number of verses: C (75 %), validation (10 %), test
+    Within a baḥr, the poems are ordered by poem_rank, the prototype poems
+    (prototype_poems) first, then cut on the number of verses: C (75 %), validation (10 %), test
     (15 %). For the RARE buḥūr, the cut is made on the number of poems instead.
 
     pool_share is the position of the poem in C, from 0 to 1, within its baḥr: the
@@ -87,7 +67,7 @@ def add_split(verses):
     poems = (verses.groupby("poem_id")
              .agg(bahr=("bahr", "first"), n_verses=("sadr", "size"))
              .reset_index())
-    poems["seen"] = poems["poem_id"].isin(SEEN_POEMS)
+    poems["seen"] = poems["poem_id"].isin(prototype_poems())
     poems["rank"] = poems["poem_id"].map(poem_rank)
     poems = poems.sort_values(["bahr", "seen", "rank"], ascending=[True, False, True])
 
@@ -112,6 +92,21 @@ def add_split(verses):
     return verses.merge(poems[["poem_id", "split", "pool_share"]], on="poem_id", how="left")
 
 
+
+
+def prototype_poems():
+    """The poems used to tune the first prototype of f, read from seen_poems.tsv.
+
+    These are the poems of the 160 verses of arud/prototype/evaluate.py (seeds
+    0-3, drawn on the corpus before drop_conflicting_labels), the lines whose tier
+    is "proto". add_split puts them first in C, so they are never in B,
+    validation or test. Only these lines are used: the poems of the later tiers
+    are already first in C by construction, and putting them first as well
+    would change the order, and so the split, at each new tier. The "proto"
+    lines must therefore never be changed.
+    """
+    seen = pd.read_csv(SEEN_FILE, sep="\t", dtype={"poem_id": int, "tier": str})
+    return set(seen.loc[seen["tier"] == "proto", "poem_id"])
 
 
 def load_split():
@@ -158,22 +153,16 @@ def update_tier(new_tier, verses=None):
     return len(new)
 
 
-def init_tracking(verses):
-    """Create the two tracking files if they do not exist yet (tier 0, prototype poems)."""
+def init_tracking():
+    """Create the tier file if it does not exist yet (0.0: before the first tier)."""
     if not TIER_FILE.exists():
         TIER_FILE.write_text("0.0\n")
-    if not SEEN_FILE.exists():
-        proto = (verses[verses["poem_id"].isin(SEEN_POEMS)]
-                 .groupby("poem_id", as_index=False)["bahr"].first()
-                 .assign(tier="proto", date="2026-11-01",
-                         reason="prototype of f (evaluate.py, 160 verses)"))
-        proto.to_csv(SEEN_FILE, sep="\t", index=False)
 
 
 if __name__ == "__main__":
     corpus = add_split(pd.read_parquet(CLEAN))
     corpus.to_parquet(OUTPUT, index=False)
-    init_tracking(corpus)
+    init_tracking()
     counts = corpus["split"].value_counts()
     print(f"{len(corpus):,} verses written to {OUTPUT.name}: "
           + ", ".join(f"{lot} {counts[lot]:,}" for lot in ["C", "validation", "test"]))
