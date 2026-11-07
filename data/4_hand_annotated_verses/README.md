@@ -1,4 +1,4 @@
-# 3. Hand-annotated verses
+# 4. Hand-annotated verses
 
 Verses annotated by hand by the author of the thesis: for each verse, the
 *taqṭīʿ* (scansion) and the *baḥr*, checked manually.

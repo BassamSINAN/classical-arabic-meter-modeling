@@ -35,7 +35,8 @@ classical-arabic-meter-modeling/
 ├── data/
 │   ├── 1_raw/                     corpora as downloaded, one folder per corpus, with exploration notebooks
 │   ├── 2_clean/                   cleaning script and cleaned corpus, ready to use
-│   └── 3_hand_annotated_verses/   verses scanned by hand, reference for evaluating f
+│   ├── 3_split/                   split into training, validation and test parts, step tracking
+│   └── 4_hand_annotated_verses/   verses scanned by hand, reference for evaluating f
 ├── arud/           stage 2: the f(bayt) algorithm (planned modules)
 │   ├── kitaba.py       kitāba ʿarūḍiyya
 │   ├── taqti.py        segmentation into maqāṭiʿ
