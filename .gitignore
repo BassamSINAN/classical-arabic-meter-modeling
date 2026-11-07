@@ -5,6 +5,7 @@ data/1_raw/*
 !data/1_raw/ashaar/
 data/1_raw/ashaar/*.parquet
 data/2_clean/*.parquet
+data/3_split/*.parquet
 __pycache__/
 *.pyc
 .venv/
