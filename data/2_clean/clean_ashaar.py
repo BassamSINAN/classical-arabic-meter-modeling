@@ -7,8 +7,12 @@ Steps (decided in the notebooks of data/1_raw/):
    (مجزوء, مخلع, ...); labels that name none of the sixteen buḥūr are left out;
 3. keep the verses with an adjusted vocalisation ratio above 0.7;
 4. remove the tatwīl and extra spaces;
-5. remove duplicates on the text without diacritics, keeping the most
-   vocalised copy.
+5. remove the verses whose copies carry different buḥūr (see
+   drop_conflicting_labels), then the remaining duplicates on the text without
+   diacritics, keeping the most vocalised copy.
+
+Each verse keeps the identifier of its poem (poem_id: row of the raw corpus, at
+the pinned revision), used by ../3_split/ to split the corpus by poem.
 
 Run as a script to write ashaar_clean.parquet in this folder.
 """
@@ -74,9 +78,25 @@ def load_raw():
                      ignore_index=True)
 
 
+def drop_conflicting_labels(verses):
+    """Remove every copy of a verse whose copies are labelled with different buḥūr.
+
+    The same verse can appear several times in Ashaar, often once per source site
+    (e.g. aldiwan.net and poetry.dctabudhabi.ae). When the copies disagree on the
+    baḥr, at least one label is wrong, and we cannot tell which one from the label
+    alone. Keeping either copy would let a possibly wrong label guide the rules of
+    f or count in its evaluation, so all copies are removed. Copies that only
+    differ by their variant (مجزوء, ...) are kept. Expects a "key" column (text
+    without diacritics).
+    """
+    n_bahr = verses.groupby("key")["bahr"].transform("nunique")
+    return verses[n_bahr == 1]
+
+
 def clean(raw=None):
     """Return the cleaned corpus, one verse per row."""
     poems = load_raw() if raw is None else raw
+    poems = poems.reset_index(drop=True).rename_axis("poem_id").reset_index()
     poems = poems[poems["poem verses"].map(len).pipe(lambda n: (n > 0) & (n % 2 == 0))]
     poems = poems.assign(source=poems["poem url"].str.extract(
         r"^(?:https?:)?//(?:www\.)?([^/]+)")[0])
@@ -84,7 +104,8 @@ def clean(raw=None):
     poems = poems.assign(bahr=meters.str[0], variant=meters.str[1])
     poems = poems[poems["bahr"].notna()]
 
-    verses = poems[["bahr", "variant", "poet name", "poet era", "source", "poem verses"]].copy()
+    verses = poems[["poem_id", "bahr", "variant", "poet name", "poet era", "source",
+                    "poem verses"]].copy()
     verses["pair"] = verses["poem verses"].map(
         lambda v: [(v[i], v[i + 1]) for i in range(0, len(v), 2)])
     verses = verses.drop(columns="poem verses").explode("pair", ignore_index=True)
@@ -94,13 +115,15 @@ def clean(raw=None):
     verses["sadr"] = verses["pair"].str[0].map(tidy)
     verses["ajuz"] = verses["pair"].str[1].map(tidy)
     key = (verses["sadr"] + " # " + verses["ajuz"]).str.replace(DIACRITICS, "", regex=True)
-    verses = (verses.assign(key=key.map(lambda k: " ".join(k.split())))
+    verses = drop_conflicting_labels(verses.assign(key=key.map(lambda k: " ".join(k.split()))))
+    verses = (verses
               .sort_values("adjusted_ratio", ascending=False)
               .drop_duplicates("key")
               .sort_index())
 
     verses = verses.rename(columns={"poet name": "poet", "poet era": "era"})
-    columns = ["sadr", "ajuz", "bahr", "variant", "poet", "era", "source", "adjusted_ratio"]
+    columns = ["poem_id", "sadr", "ajuz", "bahr", "variant", "poet", "era", "source",
+               "adjusted_ratio"]
     return verses[columns].reset_index(drop=True)
 
 
