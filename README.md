@@ -65,3 +65,11 @@ each file corresponds to a concept already defined there.
 
 As in the thesis: `ن` for a *maqṭaʿ qaṣīr* (short segment) and `-` for a
 *maqṭaʿ ṭawīl* (long segment), read right to left.
+
+## License
+
+Copyright (C) 2026 Bassam Sinan.
+
+The code in this repository is released under the GNU General Public License
+v3.0 (see `LICENSE`). The third-party corpora in `data/1_raw/` (MetRec,
+Ashaar) remain under their own licenses.
