@@ -11,3 +11,15 @@ __pycache__/
 .venv/
 .ipynb_checkpoints/
 .DS_Store
+
+# Kept private until the thesis is defended
+data/4_hand_annotated_verses/*
+!data/4_hand_annotated_verses/README.md
+reports/*
+!reports/.gitkeep
+model/**/*.pt
+model/**/*.pth
+model/**/*.ckpt
+model/**/*.safetensors
+model/**/*.bin
+model/**/*.onnx
